@@ -124,6 +124,23 @@ pipeline {
             }
         }
 
+        stage('Push Docker Images') { // push the built image to my docker hub account
+            environment {
+                DOCKER_PASS = credentials("DOCKER_HUB_PASS") // retrieve docker password from secret text called docker_hub_pass saved on jenkins
+            }
+            steps {
+                script {
+                    sh '''
+                    docker login -u $DOCKER_ID -p $DOCKER_PASS
+
+                    docker push $DOCKER_ID/$DOCKER_IMAGE_MOVIE_SERVICE:$DOCKER_TAG
+                    docker push $DOCKER_ID/$DOCKER_IMAGE_CAST_SERVICE:$DOCKER_TAG
+                    docker push $DOCKER_ID/$DOCKER_IMAGE_NGINX:$DOCKER_TAG
+                    '''
+                }
+            }
+        }
+
     }
 
 }
