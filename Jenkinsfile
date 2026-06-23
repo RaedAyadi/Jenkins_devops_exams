@@ -52,40 +52,37 @@ pipeline {
 
         }
 
-        stage ('Run Docker Containers') { // run containers from the build images
-            parallel {
-                stage('Run Movie Service') {
-                    steps {
-                        script {
-                            sh '''
-                            docker run -d -p 8001:8000 --name movie-service $DOCKER_ID/$DOCKER_IMAGE_MOVIE_SERVICE:$DOCKER_TAG
-                            sleep 3
-                            '''
-                        }
-                    }
-                }
-                stage('Run Cast Service') {
-                    steps {
-                        script {
-                            sh '''
-                            docker run -d -p 8002:8000 --name cast-service $DOCKER_ID/$DOCKER_IMAGE_CAST_SERVICE:$DOCKER_TAG
-                            sleep 3
-                            '''
-                        }
-                    }
-                }
-                stage('Run Nginx') {
-                    steps {
-                        script {    
-                            sh '''
-                            docker run -d -p 80:80 --name nginx $DOCKER_ID/$DOCKER_IMAGE_NGINX:$DOCKER_TAG
-                            sleep 3
-                            '''
-                        }
-                    }
-                }
-            }
+        stage('Run Docker Containers') {
+            steps {
+                sh '''
+                docker network create app-network || true
 
+                docker run -d --network app-network --name movie_db \
+                    -e POSTGRES_USER=movie_db_username \
+                    -e POSTGRES_PASSWORD=movie_db_password \
+                    -e POSTGRES_DB=movie_db_dev \
+                    postgres:12.1-alpine
+
+                docker run -d --network app-network --name cast_db \
+                -e POSTGRES_USER=cast_db_username \
+                -e POSTGRES_PASSWORD=cast_db_password \
+                -e POSTGRES_DB=cast_db_dev \
+                postgres:12.1-alpine
+
+                sleep 10
+
+                docker run -d --network app-network --name movie_service -p 8001:8000 \
+                -e DATABASE_URI=postgresql://movie_db_username:movie_db_password@movie_db/movie_db_dev \
+                -e CAST_SERVICE_HOST_URL=http://cast_service:8000/api/v1/casts/ \
+                $DOCKER_ID/$DOCKER_IMAGE_MOVIE_SERVICE:$DOCKER_TAG
+
+                docker run -d --network app-network --name cast_service -p 8002:8000 \
+                $DOCKER_ID/$DOCKER_IMAGE_CAST_SERVICE:$DOCKER_TAG
+
+                docker run -d --network app-network --name nginx -p 80:80 \
+                $DOCKER_ID/$DOCKER_IMAGE_NGINX:$DOCKER_TAG
+                '''
+            }
         }
 
         stage('Test Acceptance') { // we launch the curl command to validate that the container responds to the request
