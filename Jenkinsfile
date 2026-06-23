@@ -210,7 +210,7 @@ pipeline {
             }
             when {
                 expression {
-                    return env.BRANCH_NAME == '*/master'
+                    return env.BRANCH_NAME == 'origin/master'
                 }
             }
             steps {
