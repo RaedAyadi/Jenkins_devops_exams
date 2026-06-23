@@ -14,17 +14,42 @@ pipeline {
     stages {
 
         stage ('Docker Build') { // docker build image stage
-            steps {
-                script {
-                    sh '''
-                    docker rm -f movie-service cast-service nginx
-                    docker build -t $DOCKER_ID/$DOCKER_IMAGE_MOVIE_SERVICE:$DOCKER_TAG ./movie-service
-                    docker build -t $DOCKER_ID/$DOCKER_IMAGE_CAST_SERVICE:$DOCKER_TAG ./cast-service
-                    docker build -t $DOCKER_ID/$DOCKER_IMAGE_NGINX:$DOCKER_TAG ./Dockerfile
-                    sleep 10
-                    '''
+            parallel {
+                stage('Build Movie Service') {
+                    steps {
+                        script {
+                            sh '''
+                            docker rm -f movie-service
+                            docker build -t $DOCKER_ID/$DOCKER_IMAGE_MOVIE_SERVICE:$DOCKER_TAG ./movie-service
+                            sleep 3
+                            '''
+                        }
+                    }
+                }
+                stage('Build Cast Service') {
+                    steps {
+                        script {
+                            sh '''
+                            docker rm -f cast-service
+                            docker build -t $DOCKER_ID/$DOCKER_IMAGE_CAST_SERVICE:$DOCKER_TAG ./cast-service
+                            sleep 3
+                            '''
+                        }
+                    }
+                }
+                stage('Build Nginx') {
+                    steps {
+                        script {    
+                            sh '''
+                            docker rm -f nginx
+                            docker build -t $DOCKER_ID/$DOCKER_IMAGE_NGINX:$DOCKER_TAG -f ./Dockerfile ./nginx
+                            sleep 3
+                            '''
+                        }
+                    }
                 }
             }
+
         }
 
     }
