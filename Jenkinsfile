@@ -42,7 +42,7 @@ pipeline {
                         script {    
                             sh '''
                             docker rm -f nginx
-                            docker build -t $DOCKER_ID/$DOCKER_IMAGE_NGINX:$DOCKER_TAG -f ./Dockerfile ./nginx
+                            docker build -t $DOCKER_ID/$DOCKER_IMAGE_NGINX:$DOCKER_TAG -f ./Dockerfile .
                             sleep 3
                             '''
                         }
