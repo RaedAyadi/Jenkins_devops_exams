@@ -77,9 +77,14 @@ pipeline {
                 -e DATABASE_URI=postgresql://movie_db_username:movie_db_password@movie_db/movie_db_dev \
                 -e CAST_SERVICE_HOST_URL=http://cast_service:8000/api/v1/casts/ \
                 $DOCKER_ID/$DOCKER_IMAGE_MOVIE_SERVICE:$DOCKER_TAG
+                
+                sleep 10
 
                 docker run -d --network app-network --name cast_service -p 8002:8000 \
+                -e DATABASE_URI=postgresql://cast_db_username:cast_db_password@cast_db/cast_db_dev \
                 $DOCKER_ID/$DOCKER_IMAGE_CAST_SERVICE:$DOCKER_TAG
+                
+                sleep 10
 
                 docker run -d --network app-network --name nginx -p 80:80 \
                 $DOCKER_ID/$DOCKER_IMAGE_NGINX:$DOCKER_TAG
@@ -93,7 +98,7 @@ pipeline {
                     steps {
                         script {
                             sh '''
-                            curl localhost:8001
+                            curl http://localhost:8001/api/v1/movies
                             '''
                         }
                     }
@@ -102,7 +107,7 @@ pipeline {
                     steps {
                         script {
                             sh '''
-                            curl localhost:8002
+                            curl http://localhost:8002/api/v1/casts
                             '''
                         }
                     }
