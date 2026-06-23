@@ -155,8 +155,7 @@ pipeline {
                     cat $KUBECONFIG > .kube/config
                     cp charts/values.yaml values.yml
                     cat values.yml
-                    sed -i "s+tag.*+tag: ${DOCKER_TAG}+g" values.yml
-                    helm upgrade --install app charts --values=values.yml --namespace dev
+                    helm upgrade --install app charts --values=values.yml --namespace dev --set global.tag=${DOCKER_TAG}
                     '''
                 }
             }
@@ -175,8 +174,7 @@ pipeline {
                     cat $KUBECONFIG > .kube/config
                     cp charts/values.yaml values.yml
                     cat values.yml
-                    sed -i "s+tag.*+tag: ${DOCKER_TAG}+g" values.yml
-                    helm upgrade --install app charts --values=values.yml --namespace qa
+                    helm upgrade --install app charts --values=values.yml --namespace qa --set global.tag=${DOCKER_TAG}
                     '''
                 }
             }
@@ -196,9 +194,7 @@ pipeline {
                     cat $KUBECONFIG > .kube/config
                     cp charts/values.yaml values.yml
                     cat values.yml
-                    sed -i "s+tag.*+tag: ${DOCKER_TAG}+g" values.yml
-                    helm upgrade --install app charts --values=values.yml --namespace staging
-                    echo BRANCH_NAME=$BRANCH_NAME
+                    helm upgrade --install app charts --values=values.yml --namespace staging --set global.tag=${DOCKER_TAG}
                     '''
                 }
             }
@@ -225,8 +221,7 @@ pipeline {
                     cat $KUBECONFIG > .kube/config
                     cp charts/values.yaml values.yml
                     cat values.yml
-                    sed -i "s+tag.*+tag: ${DOCKER_TAG}+g" values.yml
-                    helm upgrade --install app charts --values=values.yml --namespace prod
+                    helm upgrade --install app charts --values=values.yml --namespace prod --set global.tag=${DOCKER_TAG}
                     '''
                 }
             }

@@ -4,14 +4,29 @@
 
 replicaCount: 3
 
-image:
-  repository: raedayadi/fastapiapp
-  pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: "latest"
+global:
+  tag: v.32.0
 
-imagePullSecrets: 
-  - name: "regcred"
+movieService:
+  replicas: 2
+  image:
+    repository: raedayadi/movie-service
+  env:
+    DATABASE_URI: "postgresql://movie_db_username:movie_db_password@movie-db/movie_db_dev"
+    CAST_SERVICE_HOST_URL: "http://cast-service:8000/api/v1/casts/"
+
+castService:
+  replicas: 2
+  image:
+    repository: raedayadi/cast-service
+  env:
+    DATABASE_URI: "postgresql://cast_db_username:cast_db_password@cast-db/cast_db_dev"
+
+nginx:
+  image:
+    repository: raedayadi/nginx
+
+imagePullSecrets: {}
 nameOverride: ""
 fullnameOverride: ""
 
@@ -40,7 +55,7 @@ securityContext: {}
 service:
   type: NodePort
   port: 80 
-  targetPort: 8000
+  targetPort: 8080
 
 ingress:
   enabled: false
