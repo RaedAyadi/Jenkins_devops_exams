@@ -210,11 +210,10 @@ pipeline {
             when {
                 branch 'master' // deploy to prod only if the branch is master
             }
-
-            timeout(time: 15, unit: "MINUTES") {
-                input message: 'Do you want to deploy in production ?', ok: 'Yes'
-            }
             steps {
+                timeout(time: 15, unit: "MINUTES") {
+                    input message: 'Do you want to deploy in production ?', ok: 'Yes'
+                }
                 script {
                     sh '''
                     rm -Rf .kube
