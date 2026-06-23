@@ -13,7 +13,7 @@ pipeline {
 
     stages {
 
-        stage ('Docker Build') { // docker build image stage
+        stage ('Docker Build Containers') { // docker build image stage
             parallel {
                 stage('Build Movie Service') {
                     steps {
@@ -43,6 +43,42 @@ pipeline {
                             sh '''
                             docker rm -f nginx
                             docker build -t $DOCKER_ID/$DOCKER_IMAGE_NGINX:$DOCKER_TAG -f ./Dockerfile .
+                            sleep 3
+                            '''
+                        }
+                    }
+                }
+            }
+
+        }
+
+        stage ('Run Docker Containers') { // run containers from the build images
+            parallel {
+                stage('Run Movie Service') {
+                    steps {
+                        script {
+                            sh '''
+                            docker run -d -p 8001:8000 --name movie-service $DOCKER_ID/$DOCKER_IMAGE_MOVIE_SERVICE:$DOCKER_TAG
+                            sleep 3
+                            '''
+                        }
+                    }
+                }
+                stage('Run Cast Service') {
+                    steps {
+                        script {
+                            sh '''
+                            docker run -d -p 8002:8000 --name cast-service $DOCKER_ID/$DOCKER_IMAGE_CAST_SERVICE:$DOCKER_TAG
+                            sleep 3
+                            '''
+                        }
+                    }
+                }
+                stage('Run Nginx') {
+                    steps {
+                        script {    
+                            sh '''
+                            docker run -d -p 80:80 --name nginx $DOCKER_ID/$DOCKER_IMAGE_NGINX:$DOCKER_TAG
                             sleep 3
                             '''
                         }
