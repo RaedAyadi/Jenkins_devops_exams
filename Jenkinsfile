@@ -88,6 +88,38 @@ pipeline {
 
         }
 
+        stage('Test Acceptance') { // we launch the curl command to validate that the container responds to the request
+            parallel {
+                stage('Test Movie Service') {
+                    steps {
+                        script {
+                            sh '''
+                            curl localhost:8001
+                            '''
+                        }
+                    }
+                }
+                stage('Test Cast Service') {
+                    steps {
+                        script {
+                            sh '''
+                            curl localhost:8002
+                            '''
+                        }
+                    }
+                }
+                stage('Test Nginx') {
+                    steps {
+                        script {    
+                            sh '''
+                            curl localhost:80
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+
     }
 
 }
