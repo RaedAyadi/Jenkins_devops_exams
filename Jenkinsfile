@@ -57,6 +57,8 @@ pipeline {
                 sh '''
                 docker network create app-network || true
 
+                docker rm -f movie_db cast_db movie_service cast_service nginx || true
+
                 docker run -d --network app-network --name movie_db \
                     -e POSTGRES_USER=movie_db_username \
                     -e POSTGRES_PASSWORD=movie_db_password \
