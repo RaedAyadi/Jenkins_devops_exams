@@ -86,7 +86,7 @@ pipeline {
                 
                 sleep 10
 
-                docker run -d --network app-network --name nginx -p 80:80 \
+                docker run -d --network app-network --name nginx -p 80:8080 \
                 $DOCKER_ID/$DOCKER_IMAGE_NGINX:$DOCKER_TAG
                 '''
             }
