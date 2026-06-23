@@ -208,7 +208,9 @@ pipeline {
                 KUBECONFIG = credentials("config") // retrieve kubeconfig from secret file called config saved on jenkins
             }
             when {
-                branch 'master' // deploy to prod only if the branch is master
+                expression {
+                    return env.BRANCH_NAME == 'master'
+                }
             }
             steps {
                 timeout(time: 15, unit: "MINUTES") {
